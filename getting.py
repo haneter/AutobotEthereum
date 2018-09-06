@@ -247,7 +247,7 @@ def _getLastDatainfoNum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -271,7 +271,7 @@ def _getLastCandleDataNum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -295,7 +295,7 @@ def _getHighestPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -319,7 +319,7 @@ def _getLowestPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -343,7 +343,7 @@ def _getStartPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -367,7 +367,7 @@ def _getEndPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -391,7 +391,7 @@ def _get15CandlePrice(middlePrice):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -425,7 +425,7 @@ def _get50CandlePrice(middlePrice):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -458,7 +458,7 @@ def _getChangeRateOfMiddlePrice(lastCandleDataNum, middlePrice):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -487,7 +487,7 @@ def _getChangeRateOf15Candle(lastCandleDataNum, candle15Price):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -515,7 +515,7 @@ def _getChangeRateOf50Candle(lastCandleDataNum, candle50Price):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -543,7 +543,7 @@ def	_setCandlePrice(lastDataInfoNum, highestPrice, lowestPrice, startPrice, endP
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -568,7 +568,7 @@ def _checkLastRowNum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -596,7 +596,7 @@ def _getGapRateStatus():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -633,7 +633,7 @@ def _buyEthereum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -666,7 +666,7 @@ def _sellEthereum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -697,7 +697,7 @@ def _getLastGapRate():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -877,7 +877,7 @@ def	_setData(type_name, time, upbitPrice, modifiedBinancePrice, usdPrice, gap, g
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -905,7 +905,7 @@ def _setData(price, time, exchange_info, crypto_type):
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -932,7 +932,7 @@ def _getLastUsdPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)

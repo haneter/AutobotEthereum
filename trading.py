@@ -61,7 +61,7 @@ def _checkCurrentStatus():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -111,7 +111,7 @@ def _getLastDataNum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -137,7 +137,7 @@ def _getLastPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -174,7 +174,7 @@ def _getLastCandlePrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = 'myfriend80',
+		password = '',
 		db = 'upbit',
 		charset = 'utf8'
 	)
