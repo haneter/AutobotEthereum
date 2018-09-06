@@ -28,25 +28,8 @@ def runTradingEthereum():
 
 		#_getCandlePrice()
 
-		if(currentStatus == 1):
-			print("Normal Down Status")
-		elif(currentStatus == 2):
-			print("Normal Up Status")
-		elif(currentStatus == 3):
-			print("Normal Equal Status")
-		elif(currentStatus == 4):
-			print("Abnormal Down Status")
-		elif(currentStatus == 5):
-			print("Abnormal Up Status")
-		elif(currentStatus == 6):
-			print("Abnormal Equal Status")
-		elif(currentStatus == 0):
-			print("Error Return")
-		else:
-			print("Unknown Value: " + str(currentStatus))
-
-
 		analResult = _analPrice(currentStatus)
+
 		if(analResult==1):
 			print("Need to Buy")
 		elif(analResult==2): 
@@ -78,9 +61,9 @@ def _checkCurrentStatus():
 		rows = cur.fetchall()
 
 		for row in rows:
-			rowMiddlePrice[count] = float(row[0])
-			rowChangeRateMiddlePrice[count] = float(row[1])
-			if(rowChangeRateMiddlePrice[count] >= 1 or rowChangeRateMiddlePrice[count] <= -1):
+			rowMiddlePrice.append(float(row[0]))
+			rowChangeRateMiddlePrice.append(float(row[0]))
+			if rowChangeRateMiddlePrice[count] >= 1 or rowChangeRateMiddlePrice[count] <= -1:
 				checkAbnormal = True
 			count = count + 1
 
@@ -100,10 +83,12 @@ def _checkCurrentStatus():
 				returnValue = 6
 
 	except:
+		print("_checkCurrentStatus Exception!!")
 		returnValue = 0
 	finally:
 		cur.close()
 		dbConn.close()
+		print("currentStatus is : " + str(returnValue))
 
 	return returnValue
 
@@ -129,9 +114,6 @@ def _getLastDataNum():
 		dbConn.close()
 		print("Last Data Num: " + str(rowNum))
 	return rowNum
-
-def _checkCurrentStatus():
-	return
 
 def _getLastPrice():
 	dbConn = pymysql.connect (
@@ -221,15 +203,15 @@ def _getLastCandlePrice():
 
 def _analPrice(currentStatus):
 	if(currentStatus == 1):
-		print("Normal Down Status")
-	elif(currentStatus == 2):
 		print("Normal Up Status")
+	elif(currentStatus == 2):
+		print("Normal Down Status")
 	elif(currentStatus == 3):
 		print("Normal Equal Status")
 	elif(currentStatus == 4):
-		print("Abnormal Down Status")
-	elif(currentStatus == 5):
 		print("Abnormal Up Status")
+	elif(currentStatus == 5):
+		print("Abnormal Down Status")
 	elif(currentStatus == 6):
 		print("Abnormal Equal Status")
 	elif(currentStatus == 0):
