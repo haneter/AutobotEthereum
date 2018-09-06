@@ -26,7 +26,7 @@ def runTradingEthereum():
 		lastCandle15CandlePrice, lastCandle50CandlePrice, lastCandleMiddlePrice, lastCandleChangeRate15Candle, \
 		lastCandleChangeRate50Candle, lastCandleChangeRateMiddle =  _getLastCandlePrice()
 
-		_getCandlePrice()
+		#_getCandlePrice()
 
 		if(currentStatus == 1):
 			print("Normal Down Status")
@@ -89,14 +89,14 @@ def _checkCurrentStatus():
 				returnValue = 1	
 			elif(rowMiddlePrice[0] < rowMiddlePrice[count - 1]):
 				returnValue = 2
-			else
+			else:
 				returnValue = 3
 		elif(checkAbnormal == True):
 			if(rowMiddlePrice[0] > rowMiddlePrice[count - 1]):
 				returnValue = 4
 			elif(rowMiddlePrice[0] < rowMiddlePrice[count - 1]):
 				returnValue = 5
-			else
+			else:
 				returnValue = 6
 
 	except:
@@ -248,6 +248,8 @@ def main():
 		print("1: Start to trade for ethereum")
 		print("9: Exit")
 
+		userCmd = input("Please Choose Number: ")
+
 		if(userCmd == '1'):
 			print("userCmd is 1")
 			th1 = threading.Thread(target = runTradingEthereum)
@@ -259,5 +261,5 @@ def main():
 
 	print("Exit Program")
 
-if __name__ == "__main__"
+if __name__ == "__main__":
 	main()
