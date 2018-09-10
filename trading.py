@@ -2,6 +2,12 @@ import pymysql
 import time
 import datetime as dt
 import threading
+import requests
+import json
+
+import jwt
+from urllib.parse import urlencode
+from collections import OrderedDict
 
 checkTradingEthereum = True
 
@@ -18,15 +24,28 @@ def runTradingEthereum():
 			continue
 		lastCheckNum = tmpCheckNum
 
-		currentStatus = _checkCurrentStatus()
+		_getInformation()
+		_checkOrderComplite("277")
 
-		lastDataNum, lastTime, lastUpbitPrice, lastBinancePrice, lastExchangeRate, lastGap, lastGapRate = _getLastPrice()
+		ethBalance = _getEthereumBalance()
+		print("ethBalance: " + str(ethBalance))
 
-		lastCandleNum, lastCandleDataNum, lastCandleHighestPrice, lastCandleLowestPrice, lastCandleStartPrice, lastCandleEndPrice, \
-		lastCandle15CandlePrice, lastCandle50CandlePrice, lastCandleMiddlePrice, lastCandleChangeRate15Candle, \
-		lastCandleChangeRate50Candle, lastCandleChangeRateMiddle =  _getLastCandlePrice()
-
-		#_getCandlePrice()
+		if(ethBalance > 0.01):
+			checkResult = _checkSell()
+			if(checkResult == 1):
+				_doSellEthereum()
+			elif(checkResult == 2):
+				print("Pending (Not to Sell Ethereum)")
+			else:
+				print("_checkSell: Error Code Return")
+		elif(ethBalance <= 0.01):
+			checkResult = _checkBuy()
+			if(checkResult == 1):
+				_doBuyEthereum()
+			elif(checkResult == 2):
+				print("Pending (Not to Buy Ethereum)")
+			else:
+				print("_checkBuy: Error Code Return")
 
 		analResult = _analPrice(currentStatus)
 
@@ -40,11 +59,184 @@ def runTradingEthereum():
 
 	return
 
+def _getInformation():
+
+	inputQuery = {'market': 'KRW-ETH'}
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+		'query': urlencode(inputQuery),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.get('https://api.upbit.com/v1/orders/chance', headers=authorization, data=inputQuery)
+
+	print(response.text)
+	print("HANETER  END")
+
+
+	inputQuery = {'market': 'KRW-ETH', 'state': 'wait', 'page': 1, 'order_by': 'asc'}
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+		'query': urlencode(inputQuery),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.get('https://api.upbit.com/v1/orders', headers=authorization, data=inputQuery)
+
+	print(response.text)
+	print("HANETER  END")
+
+	return
+
+def _doBuy(volume, price):
+	inputQuery = {
+		'market': 'KRW-ETH',
+		'side': 'bid',
+		'volume': str(volume),
+		'price': str(price),
+		'ord_type': 'limit'
+	}
+
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+		'query': urlencode(inputQuery),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.post('https://api.upbit.com/v1/orders', headers=authorization, data=inputQuery)
+	print(response.text)
+	return
+
+def _doSell(volume, price):
+	inputQuery = {
+		'market': 'KRW-ETH',
+		'side': 'ask',
+		'volume': str(volume),
+		'price': str(price),
+		'ord_type': 'limit'
+	}
+
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+		'query': urlencode(inputQuery),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.post('https://api.upbit.com/v1/orders', headers=authorization, data=inputQuery)
+	print(response.text)
+	return
+
+def _checkOrderComplite(uuid):
+	print("_checkOrderComplite: " + str(uuid))
+	inputQuery = {
+		'uuid': str(uuid)
+	}
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+		'query': urlencode(inputQuery),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.get('https://api.upbit.com/v1/orders', headers=authorization, data=inputQuery)
+
+	print(response.text)
+	print("HANETER  END")
+	return
+
+def _getEthereumBalance():
+	payload = {
+		'access_key': '',
+		'nonce': int(time.time() * 1000),
+	}
+	jwt_token = jwt.encode(payload, '',).decode('utf8')
+	authorization = {'Authorization': 'Bearer {}'.format(jwt_token)}
+
+	response = requests.get('https://api.upbit.com/v1/accounts', headers=authorization)
+
+	print(response.text)
+	data_list = json.loads(response.text)
+
+	ethBalance = float(0)
+
+	for data in data_list:
+		#print("haneter: " + str(data['currency']))
+		if(str(data['currency']) == str('ETH')):
+			tmpBalance = float(data['balance'])
+			tmpLocked = float(data['locked'])
+			ethBalance = tmpBalance - tmpLocked
+
+	#print("haneter: " + str(data_list[0]))
+
+
+	#print("haneter: " + str(data_list[currency]))
+	return ethBalance
+
+def _checkSell():
+
+	"""
+	Case 1
+	매수가격 대비 1% 이상 하락 할 경우
+	손절한다.
+	"""
+	#_getLastBuyData()
+	return 0
+
+def _checkBuy():
+	currentStatus = _checkCurrentStatus()
+
+	lastDataNum, lastTime, lastUpbitPrice, lastBinancePrice, lastExchangeRate, lastGap, lastGapRate = _getLastPrice()
+
+	lastCandlePrice = _getLastCandlePrice()
+	candlePrice_list = json.loads(lastCandlePrice)
+
+	print("HANETER: " + str(candlePrice_list[0]['change_rate_middle_price']))
+	for candlePrice in candlePrice_list:
+		changeRateMiddlePrice = float(candlePrice['change_rate_middle_price'])
+		print("num: " + str(candlePrice['change_rate_middle_price']))
+
+	"""
+	Case 1
+	50Candle Price > 15 Candle Price > Middle Price 순일 경우
+	5연속 하락 후 마지막에 상승 또는 5연속 하락 후 마지막에 하락률 둔하.. (-0.1 이하)
+	현재가격에서 1% 상승 가격이 15 Candle Price 보다 작으면
+	산다.
+	"""
+	if float(candlePrice_list[0]['50candle_price']) >= float(candlePrice_list[0]['15candle_price']) and float(candlePrice_list[0]['15candle_price']) >= float(candlePrice_list[0]['middle_price']):
+		if float(candlePrice_list['0']['change_rate_middle_price']) > -0.1 and float(candlePrice_list[1]['change_rate_middle_price']) < 0 and float(candlePrice_list[2]['change_rate_middle_price']) < 0 and \
+			float(candlePrice_list[3]['change_rate_middle_price']) < 0 and float(candlePrice_list[4]['change_rate_middle_price']) < 0 and float(candlePrice_list[5]['change_rate_middle_price']) < 0:
+			if lastUpbitPrice * 1.01 < float(candlePrice_list[0]['15candle_price']):
+				print("_checkBuy CASE 1: BUY SIGNAL!!")
+
+	"""
+	Case 2
+	50 Candle Price > 15 Candle Price > Middle Price 순일 경우
+	3연속하락 후 마지막 하락이 둔화 될 때, 한개의 Candle 하락율이 -1 이상인 경우
+	마지막 하락이 -0.3 이하로 둔화되었을 경우
+	현재 가격에서 1% 상승 가격이 15 Candle Price 보다 작으면
+	산다
+	"""
+	if float(candlePrice_list[0]['50candle_price']) >= float(candlePrice_list[0]['15candle_price']) and float(candlePrice_list[0]['15candle_price']) >= float(candlePrice_list[0]['middle_price']):
+		if float(candlePrice_list['0']['change_rate_middle_price']) > -0.3 and float(candlePrice_list[1]['change_rate_middle_price']) < 0 and float(candlePrice_list[2]['change_rate_middle_price']) < 0 and float(candlePrice_list[3]['change_rate_middle_price']) < 0 :
+			if float(candlePrice_list[1]['change_rate_middle_price']) < -1  or float(candlePrice_list[2]['change_rate_middle_price']) < -1 or float(candlePrice_list[3]['change_rate_middle_price']) < -1:
+				if lastUpbitPrice * 1.01 < float(candlePrice_list[0]['15candle_price']):
+					print("_checkBuy CASE 2: BUY SIGNAL!!")
+	return 0
+
 def _checkCurrentStatus():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = '',
+		password = 'myfriend80',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -96,7 +288,7 @@ def _getLastDataNum():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = '',
+		password = 'myfriend80',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -119,7 +311,7 @@ def _getLastPrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = '',
+		password = 'myfriend80',
 		db = 'upbit',
 		charset = 'utf8'
 	)
@@ -156,50 +348,41 @@ def _getLastCandlePrice():
 	dbConn = pymysql.connect (
 		host = 'localhost',
 		user = 'haneter',
-		password = '',
+		password = 'myfriend80',
 		db = 'upbit',
 		charset = 'utf8'
 	)
 
 	try:
 		cur = dbConn.cursor()
-		sql = "select * from candle_info order by num desc limit 1"
+		sql = "select * from candle_info order by num desc limit 10"
 		cur.execute(sql)
-		row = cur.fetchone()
-		rowNum = int(row[0])
-		rowDataNum = int(row[1])
-		rowHighestPrice = float(row[2])
-		rowLowestPrice = float(row[3])
-		rowStartPrice = float(row[4])
-		rowEndPrice = float(row[5])
-		row15CandlePrice = float(row[6])
-		row50CandlePrice = float(row[7])
-		rowMiddlePrice = float(row[8])
-		rowChangeRateMiddlePrice = float(row[9])
-		rowChangeRate15CandlePrice = float(row[10])
-		rowChangeRate50CandlePrice = float(row[11])
+		rows = cur.fetchall()
+
+		count = 0
+		jsonData = "["
+		for row in rows:
+			if(count != 0):
+				jsonData = jsonData + ", "
+			tmpJsonData = "{'num':" + str(row[0]) + ", 'data_info_2_num':" + str(row[1]) + ", 'highest_price':'" + str(row[2]) + "', 'lowest_price':'" + str(row[3]) + "', 'start_price':'" + str(row[4]) + \
+				"', 'end_price':'" + str(row[5]) + "', '15candle_price':'" + str(row[6]) + "', '50candle_price':'" + str(row[7]) + "', 'middle_price':'" + str(row[8]) + \
+				"', 'change_rate_middle_price':'" + str(row[9]) + "', 'change_rate_15candle_price':'" + str(row[10]) + "', 'change_rate_50candle_price':'" + str(row[11]) + "'}"
+
+			jsonData = jsonData + tmpJsonData
+			count = count + 1
+
+		jsonData = jsonData + "]"
+
+		print(jsonData)
+
 	except:
-		rowNum = 0
-		rowDataNum = 0
-		rowHighestPrice = 0
-		rowLowestPrice = 0
-		rowStartPrice = 0
-		rowEndPrice = 0
-		row15CandlePrice = 0
-		row50CandlePrice = 0
-		rowMiddlePrice = 0
-		rowChangeRateMiddlePrice = 0
-		rowChangeRate15CandlePrice = 0
-		rowChangeRate50CandlePrice = 0
+		jsonData = ""
 	finally:
 		cur.close()
 		dbConn.close()
-		print("Last Candle Price: " + str(rowNum) + ", " + str(rowDataNum) + ", " +  str(rowHighestPrice) + ", " + \
-			str(rowLowestPrice) + ", " + str(rowStartPrice) + ", " + str(rowEndPrice) + ", " + str(row15CandlePrice) + ", " + \
-			str(row50CandlePrice) + ", " + str(rowMiddlePrice) + ", " + str(rowChangeRateMiddlePrice) + ", " + str(rowChangeRate15CandlePrice) + ", " + \
-			str(rowChangeRate50CandlePrice))
+		jsonData = jsonData.replace("\'", "\"")
 
-	return rowNum, rowDataNum, rowHighestPrice, rowLowestPrice, rowStartPrice, rowEndPrice, row15CandlePrice, row50CandlePrice, rowMiddlePrice, rowChangeRateMiddlePrice, rowChangeRate15CandlePrice, rowChangeRate50CandlePrice
+	return jsonData
 
 def _analPrice(currentStatus):
 	if(currentStatus == 1):
